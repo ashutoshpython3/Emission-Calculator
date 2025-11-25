@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bus Emission Reduction Calculator</title>
+    <style>
+        :root {
+            --primary: #059669;
+            --secondary: #0d9488;
+            --light: #f0fdfa;
+            --dark: #134e4a;
+            --gray: #6b7280;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --blue: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0fdfa, #e6f7f5);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .result-unit {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .emission-breakdown {
+            margin-top: 30px;
+        }
+        
+        .emission-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .emission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .emission-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .emission-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .emission-description {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .formula-box {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .formula {
+            font-family: 'Courier New', Courier, monospace;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        
+        .highlight {
+            background-color: #f0fdfa;
+            font-weight: 600;
+        }
+        
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .source-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .source-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .source-link {
+            color: var(--blue);
+            text-decoration: none;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .source-link:hover {
+            text-decoration: underline;
+        }
+        
+        .source-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .methodology-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .methodology-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .methodology-content {
+            color: var(--gray);
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .bar-chart {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        .bar {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .source-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .methodology-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Electric Bus Emission Reduction Calculator</h1>
+            <p class="subtitle">Estimate CO₂ savings from switching to electric buses</p>
+        </header>
+        
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('calculator')">Calculator</div>
+                <div class="tab" onclick="showTab('methodology')">Methodology</div>
+                <div class="tab" onclick="showTab('sources')">Sources</div>
+            </div>
+            
+            <div id="calculator" class="tab-content active">
+                <div class="section">
+                    <h2>Bus Fleet Parameters</h2>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="numBuses">Number of buses</label>
+                            <input type="number" id="numBuses" min="1" value="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dailyDistance">Average daily distance per bus (km)</label>
+                            <input type="number" id="dailyDistance" min="1" value="175">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contractPeriod">Contract period (years)</label>
+                            <input type="number" id="contractPeriod" min="1" value="12">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="occupancy">Average occupancy (passengers)</label>
+                            <input type="number" id="occupancy" min="1" value="35">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Emission Factors</h2>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="dieselEmission">Diesel bus CO₂ emission (g/km)</label>
+                            <input type="number" id="dieselEmission" min="0" step="0.01" value="1475">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gridFactor">Electricity grid emission factor (gCO₂/kWh)</label>
+                            <input type="number" id="gridFactor" min="0" step="0.1" value="727">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="efficiency">Electric bus efficiency</label>
+                            <input type="number" id="efficiency" min="0" step="0.01" value="0.9">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalEmission">Additional CO₂ emissions for electric buses (g/km)</label>
+                            <input type="number" id="additionalEmission" min="0" step="0.01" value="165">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Life Cycle Emissions (per bus)</h2>
+                    <h3>Diesel Bus</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="dieselFuel">Fuel consumed over life (litres)</label>
+                            <input type="number" id="dieselFuel" min="0" value="240000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dieselUsePhase">Use-phase emissions (t CO₂e)</label>
+                            <input type="number" id="dieselUsePhase" min="0" step="0.001" value="720">
+                        </div>
+                    </div>
+                    
+                    <h3>Electric Bus</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="electricityConsumed">Electricity consumed over life (kWh)</label>
+                            <input type="number" id="electricityConsumed" min="0" value="792000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="electricUsePhase">Use-phase emissions (t CO₂e)</label>
+                            <input type="number" id="electricUsePhase" min="0" step="0.001" value="490.248">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="batteryManufacturing">Battery & Bus Manufacturing emissions (t CO₂e)</label>
+                            <input type="number" id="batteryManufacturing" min="0" step="0.001" value="36">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="calculateEmissions()">Calculate Emission Reduction</button>
+                
+                <div id="results" class="results">
+                    <h2>Emission Reduction Results</h2>
+                    
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <div class="result-title">Daily CO₂ Saving</div>
+                            <div class="result-value" id="dailySaving">0</div>
+                            <div class="result-unit">tonnes/day</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-title">Total CO₂ Saving</div>
+                            <div class="result-value" id="totalSaving">0</div>
+                            <div class="result-unit">million tonnes</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-title">Saving per Vehicle km</div>
+                            <div class="result-value" id="savingPerKm">0</div>
+                            <div class="result-unit">g/km</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-title">Saving per Passenger km</div>
+                            <div class="result-value" id="savingPerPassengerKm">0</div>
+                            <div class="result-unit">g/passenger-km</div>
+                        </div>
+                    </div>
+                    
+                    <div class="emission-breakdown">
+                        <h3>Life Cycle Emission Comparison</h3>
+                        
+                        <table class="comparison-table">
+                            <tr>
+                                <th>Emission Component</th>
+                                <th>Diesel Bus (tonnes)</th>
+                                <th>Electric Bus (tonnes)</th>
+                                <th>Saving (tonnes)</th>
+                            </tr>
+                            <tr>
+                                <td>Use Phase</td>
+                                <td id="dieselUsePhaseTotal">0</td>
+                                <td id="electricUsePhaseTotal">0</td>
+                                <td id="usePhaseSaving">0</td>
+                            </tr>
+                            <tr>
+                                <td>Manufacturing</td>
+                                <td id="dieselManufacturingTotal">0</td>
+                                <td id="electricManufacturingTotal">0</td>
+                                <td id="manufacturingSaving">0</td>
+                            </tr>
+                            <tr class="highlight">
+                                <td>Total Life Cycle</td>
+                                <td id="dieselTotal">0</td>
+                                <td id="electricTotal">0</td>
+                                <td id="totalLifeCycleSaving">0</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Life Cycle Emission Comparison</h3>
+                        <div id="barChart" class="bar-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: rgba(239, 68, 68, 0.7);"></div>
+                                <span>Diesel Bus</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: rgba(5, 150, 105, 0.7);"></div>
+                                <span>Electric Bus</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="methodology" class="tab-content">
+                <h2>Calculation Methodology</h2>
+                
+                <div class="methodology-grid">
+                    <div class="methodology-card">
+                        <div class="methodology-title">Electric Bus Emission Calculation</div>
+                        <div class="methodology-content">
+                            <p>Electric bus CO₂ emission is calculated as:</p>
+                            <div class="formula">
+                                Electric Bus CO₂ (g/km) = (Grid Emission Factor / Efficiency) + Additional Emissions
+                            </div>
+                            <p>Where:</p>
+                            <ul style="padding-left: 20px; margin-top: 10px;">
+                                <li>Grid Emission Factor: 727 gCO₂/kWh</li>
+                                <li>Efficiency: 0.9</li>
+                                <li>Additional Emissions: 165 g/km (for manufacturing, etc.)</li>
+                            </ul>
+                            <p>Example: (727 / 0.9) + 165 = 800 + 165 = 965 g/km</p>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-card">
+                        <div class="methodology-title">CO₂ Saving Calculation</div>
+                        <div class="methodology-content">
+                            <p>CO₂ saving per km is calculated as:</p>
+                            <div class="formula">
+                                Saving (g/km) = Diesel Bus Emission - Electric Bus Emission
+                            </div>
+                            <p>Example: 1475 - 965 = 510 g/km</p>
+                            
+                            <p style="margin-top: 15px;">Daily CO₂ saving for the fleet:</p>
+                            <div class="formula">
+                                Daily Saving (tonnes/day) = Saving (g/km) × Daily Distance (km) × Number of Buses / 1,000,000
+                            </div>
+                            
+                            <p style="margin-top: 15px;">Total CO₂ saving over contract period:</p>
+                            <div class="formula">
+                                Total Saving (million tonnes) = Daily Saving (tonnes/day) × 365 × Contract Period (years) / 1,000,000
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-card">
+                        <div class="methodology-title">Life Cycle Emission Calculation</div>
+                        <div class="methodology-content">
+                            <p>Lifetime distance is calculated as:</p>
+                            <div class="formula">
+                                Lifetime Distance (km) = Daily Distance (km) × 365 × Contract Period (years)
+                            </div>
+                            
+                            <p style="margin-top: 15px;">Use phase emissions:</p>
+                            <div class="formula">
+                                Use Phase Emission (tonnes) = Lifetime Distance (km) × Emission Factor (g/km) / 1,000,000
+                            </div>
+                            
+                            <p style="margin-top: 15px;">Total life cycle emissions:</p>
+                            <div class="formula">
+                                Total Life Cycle Emission = Use Phase + Manufacturing + Delivery + Infrastructure
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-card">
+                        <div class="methodology-title">Per Kilometer Calculations</div>
+                        <div class="methodology-content">
+                            <p>Emission per vehicle km:</p>
+                            <div class="formula">
+                                Emission per Vehicle km (g/km) = Total Life Cycle Emission (tonnes) × 1,000,000 / Lifetime Distance (km)
+                            </div>
+                            
+                            <p style="margin-top: 15px;">Emission per passenger km:</p>
+                            <div class="formula">
+                                Emission per Passenger km (g/passenger-km) = Emission per Vehicle km (g/km) / Occupancy
+                            </div>
+                            
+                            <p style="margin-top: 15px;">Saving per passenger km:</p>
+                            <div class="formula">
+                                Saving per Passenger km = Diesel Emission per Passenger km - Electric Emission per Passenger km
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="sources" class="tab-content">
+                <h2>Sources and References</h2>
+                
+                <div class="source-grid">
+                    <div class="source-card">
+                        <div class="source-title">Government of India - Ministry of Road Transport and Highways</div>
+                        <a href="https://morth.nic.in/" target="_blank" class="source-link">https://morth.nic.in/</a>
+                        <p class="source-description">Official website for Bharat Stage emission standards and vehicle regulations in India.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">Central Electricity Authority (CEA)</div>
+                        <a href="https://cea.nic.in/" target="_blank" class="source-link">https://cea.nic.in/</a>
+                        <p class="source-description">Provides official data on electricity generation and grid emission factors in India.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">NITI Aayog - Electric Mobility</div>
+                        <a href="https://niti.gov.in/electric-mobility" target="_blank" class="source-link">https://niti.gov.in/electric-mobility</a>
+                        <p class="source-description">National institution for transforming India, providing policy recommendations for electric mobility.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">Department of Heavy Industries - FAME India</div>
+                        <a href="https://dhi.nic.in/scheme/fame-india" target="_blank" class="source-link">https://dhi.nic.in/scheme/fame-india</a>
+                        <p class="source-description">Faster Adoption and Manufacturing of Electric Vehicles scheme details and guidelines.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">International Transport Forum (ITF) - OECD</div>
+                        <a href="https://www.itf-oecd.org/" target="_blank" class="source-link">https://www.itf-oecd.org/</a>
+                        <p class="source-description">Source for CO₂ emission factors for diesel vehicles (42.18 g CO₂/vehicle km for 9m buses).</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">Bureau of Energy Efficiency (BEE)</div>
+                        <a href="https://beeindia.gov.in/" target="_blank" class="source-link">https://beeindia.gov.in/</a>
+                        <p class="source-description">Provides standards and labels for energy efficiency, including electric vehicles.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">Ministry of Power - India</div>
+                        <a href="https://powermin.gov.in/" target="_blank" class="source-link">https://powermin.gov.in/</a>
+                        <p class="source-description">Responsible for electricity generation and transmission policies in India.</p>
+                    </div>
+                    
+                    <div class="source-card">
+                        <div class="source-title">Energy Efficiency Services Limited (EESL)</div>
+                        <a href="https://www.eeslindia.org/" target="_blank" class="source-link">https://www.eeslindia.org/</a>
+                        <p class="source-description">Implementing agency for large-scale energy efficiency programs, including electric buses.</p>
+                    </div>
+                </div>
+                
+                <div class="info-box" style="margin-top: 30px;">
+                    <h3>Additional Information</h3>
+                    <p>The calculator uses data from official Indian government sources and international organizations to ensure accuracy and reliability. The emission factors and calculations are based on the latest available data and research studies on electric and diesel bus emissions in the Indian context.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        function calculateEmissions() {
+            // Get input values
+            const numBuses = parseFloat(document.getElementById('numBuses').value);
+            const dailyDistance = parseFloat(document.getElementById('dailyDistance').value);
+            const contractPeriod = parseFloat(document.getElementById('contractPeriod').value);
+            const occupancy = parseFloat(document.getElementById('occupancy').value);
+            
+            const dieselEmission = parseFloat(document.getElementById('dieselEmission').value);
+            const gridFactor = parseFloat(document.getElementById('gridFactor').value);
+            const efficiency = parseFloat(document.getElementById('efficiency').value);
+            const additionalEmission = parseFloat(document.getElementById('additionalEmission').value);
+            
+            // Life cycle emissions per bus
+            const dieselFuel = parseFloat(document.getElementById('dieselFuel').value);
+            const dieselUsePhase = parseFloat(document.getElementById('dieselUsePhase').value);
+            
+            const electricityConsumed = parseFloat(document.getElementById('electricityConsumed').value);
+            const electricUsePhase = parseFloat(document.getElementById('electricUsePhase').value);
+            const batteryManufacturing = parseFloat(document.getElementById('batteryManufacturing').value);
+            
+            // Calculate electric bus emission
+            const electricEmission = (gridFactor / efficiency) + additionalEmission;
+            
+            // Calculate saving per km
+            const savingPerKm = dieselEmission - electricEmission;
+            
+            // Calculate daily saving
+            const dailySaving = (savingPerKm * dailyDistance * numBuses) / 1000000; // tonnes/day
+            
+            // Calculate total saving over contract period
+            const totalSaving = (dailySaving * 365 * contractPeriod) / 1000000; // million tonnes
+            
+            // Calculate lifetime distance
+            const lifetimeDistance = dailyDistance * 365 * contractPeriod; // km
+            
+            // Calculate total life cycle emissions
+            const dieselTotal = (dieselUsePhase * numBuses);
+            const electricTotal = (electricUsePhase * numBuses) + (batteryManufacturing * numBuses);
+            
+            // Calculate savings
+            const usePhaseSaving = (dieselUsePhase - electricUsePhase) * numBuses;
+            const manufacturingSaving = (0 - batteryManufacturing) * numBuses; // Diesel has 0 manufacturing emissions in this model
+            const totalLifeCycleSaving = dieselTotal - electricTotal;
+            
+            // Calculate emission per vehicle km
+            const dieselPerVehicleKm = (dieselTotal * 1000000) / (lifetimeDistance * numBuses);
+            const electricPerVehicleKm = (electricTotal * 1000000) / (lifetimeDistance * numBuses);
+            const savingPerVehicleKm = dieselPerVehicleKm - electricPerVehicleKm;
+            
+            // Calculate emission per passenger km
+            const dieselPerPassengerKm = dieselPerVehicleKm / occupancy;
+            const electricPerPassengerKm = electricPerVehicleKm / occupancy;
+            const savingPerPassengerKm = dieselPerPassengerKm - electricPerPassengerKm;
+            
+            // Display results
+            document.getElementById('dailySaving').textContent = dailySaving.toFixed(2);
+            document.getElementById('totalSaving').textContent = totalSaving.toFixed(2);
+            document.getElementById('savingPerKm').textContent = savingPerKm.toFixed(2);
+            document.getElementById('savingPerPassengerKm').textContent = savingPerPassengerKm.toFixed(4);
+            
+            // Display life cycle emissions
+            document.getElementById('dieselUsePhaseTotal').textContent = (dieselUsePhase * numBuses).toFixed(2);
+            document.getElementById('electricUsePhaseTotal').textContent = (electricUsePhase * numBuses).toFixed(2);
+            document.getElementById('usePhaseSaving').textContent = usePhaseSaving.toFixed(2);
+            
+            document.getElementById('dieselManufacturingTotal').textContent = "0.00";
+            document.getElementById('electricManufacturingTotal').textContent = (batteryManufacturing * numBuses).toFixed(2);
+            document.getElementById('manufacturingSaving').textContent = manufacturingSaving.toFixed(2);
+            
+            document.getElementById('dieselTotal').textContent = dieselTotal.toFixed(2);
+            document.getElementById('electricTotal').textContent = electricTotal.toFixed(2);
+            document.getElementById('totalLifeCycleSaving').textContent = totalLifeCycleSaving.toFixed(2);
+            
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+            
+            // Create chart
+            createBarChart(dieselTotal, electricTotal, dieselUsePhase * numBuses, electricUsePhase * numBuses, 
+                          0, batteryManufacturing * numBuses);
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function createBarChart(dieselTotal, electricTotal, dieselUse, electricUse, dieselMan, electricMan) {
+            const chartContainer = document.getElementById('barChart');
+            chartContainer.innerHTML = '';
+            
+            // Calculate max value for scaling
+            const maxValue = Math.max(dieselTotal, electricTotal, dieselUse, electricUse, dieselMan, electricMan);
+            const chartHeight = 250;
+            const barWidth = 40;
+            const spacing = 60;
+            
+            // Create bars for each category
+            const categories = ['Use Phase', 'Manufacturing', 'Total'];
+            const dieselValues = [dieselUse, dieselMan, dieselTotal];
+            const electricValues = [electricUse, electricMan, electricTotal];
+            
+            categories.forEach((category, index) => {
+                const x = index * spacing * 2 + 50;
+                
+                // Diesel bar
+                const dieselHeight = (dieselValues[index] / maxValue) * chartHeight;
+                const dieselBar = document.createElement('div');
+                dieselBar.className = 'bar';
+                dieselBar.style.left = `${x}px`;
+                dieselBar.style.height = `${dieselHeight}px`;
+                dieselBar.style.backgroundColor = 'rgba(239, 68, 68, 0.7)';
+                
+                const dieselValue = document.createElement('div');
+                dieselValue.className = 'bar-value';
+                dieselValue.textContent = dieselValues[index].toFixed(0);
+                dieselBar.appendChild(dieselValue);
+                
+                const dieselLabel = document.createElement('div');
+                dieselLabel.className = 'bar-label';
+                dieselLabel.textContent = 'Diesel';
+                dieselBar.appendChild(dieselLabel);
+                
+                chartContainer.appendChild(dieselBar);
+                
+                // Electric bar
+                const electricHeight = (electricValues[index] / maxValue) * chartHeight;
+                const electricBar = document.createElement('div');
+                electricBar.className = 'bar';
+                electricBar.style.left = `${x + barWidth + 10}px`;
+                electricBar.style.height = `${electricHeight}px`;
+                electricBar.style.backgroundColor = 'rgba(5, 150, 105, 0.7)';
+                
+                const electricValue = document.createElement('div');
+                electricValue.className = 'bar-value';
+                electricValue.textContent = electricValues[index].toFixed(0);
+                electricBar.appendChild(electricValue);
+                
+                const electricLabel = document.createElement('div');
+                electricLabel.className = 'bar-label';
+                electricLabel.textContent = 'Electric';
+                electricBar.appendChild(electricLabel);
+                
+                chartContainer.appendChild(electricBar);
+                
+                // Category label
+                const categoryLabel = document.createElement('div');
+                categoryLabel.style.position = 'absolute';
+                categoryLabel.style.bottom = '-50px';
+                categoryLabel.style.left = `${x}px`;
+                categoryLabel.style.width = `${barWidth * 2 + 10}px`;
+                categoryLabel.style.textAlign = 'center';
+                categoryLabel.style.fontSize = '12px';
+                categoryLabel.textContent = category;
+                chartContainer.appendChild(categoryLabel);
+            });
+        }
+    </script>
+</body>
+</html>
